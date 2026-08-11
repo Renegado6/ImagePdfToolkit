@@ -9,9 +9,9 @@
 
 RandomWatermarkTool is a lightweight Windows desktop application for applying randomized PNG watermarks to images. It is built with WPF and MVVM, supports multiple watermark candidates, and can also merge images from an output folder into a PDF.
 
-![WPF interface preview](design/wpf-ui-concept.png)
+![RandomWatermarkTool English interface](design/wpf-ui-en-US.png)
 
-> This is a design preview of the WPF interface. The actual appearance may vary slightly depending on window size and system fonts.
+> English interface with the runtime language selector in the bottom-right corner.
 
 ## Download
 

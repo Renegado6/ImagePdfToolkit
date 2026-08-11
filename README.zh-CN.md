@@ -9,9 +9,9 @@
 
 RandomWatermarkTool 是一个面向 Windows 的轻量级随机水印桌面工具。它使用 WPF 和 MVVM 构建，可以从多个 PNG 水印中随机选择、随机旋转并叠加到底图上，也可以将输出目录中的图片合并为 PDF。
 
-![WPF 界面设计预览](design/wpf-ui-concept.png)
+![RandomWatermarkTool 简体中文界面](design/wpf-ui-zh-CN.png)
 
-> 上图为 WPF 界面设计预览，实际显示效果可能随窗口尺寸和系统字体略有不同。
+> 简体中文界面，右下角包含运行时语言选择器。
 
 ## 下载使用
 
