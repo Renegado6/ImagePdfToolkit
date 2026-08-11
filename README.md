@@ -17,13 +17,13 @@ RandomWatermarkTool is a lightweight Windows desktop application for applying ra
 
 Download the latest ready-to-run Windows package from the [Releases page](https://github.com/shadiao719/RandomWatermarkTool/releases/latest).
 
-1. Download `RandomWatermarkTool-v1.0.0-win-x64.zip`.
+1. Download `RandomWatermarkTool-v1.1.0-win-x64.zip`.
 2. Extract the ZIP file to any folder.
 3. Run `RandomWatermarkTool.exe`.
 
 The portable build is self-contained and does not require a separate .NET installation. Windows may show a SmartScreen warning because the executable is not code-signed; review the publisher information and choose to run it only if you downloaded it from this repository.
 
-The application interface in v1.0.0 is currently Simplified Chinese. This English guide includes translations for the main actions.
+On first launch, the application follows the Windows display language. You can switch between **System default**, **English**, and **简体中文** at any time from the language selector in the status bar. The selection is remembered for future launches.
 
 ## Features
 
@@ -37,6 +37,8 @@ The application interface in v1.0.0 is currently Simplified Chinese. This Englis
 - Remember the last source image, watermarks, output folder, and settings
 - Merge images from the output folder into a PDF
 - Process all images locally without uploading them to a server
+- Switch between English and Simplified Chinese at runtime
+- Follow the Windows display language automatically by default
 
 ## Requirements for Development
 
@@ -67,9 +69,9 @@ You can also open `RandomWatermarkTool.slnx` in Visual Studio and run the projec
 1. Drop a source image into the preview area or choose one from disk.
 2. Add one or more PNG watermarks on the right.
 3. Adjust the size, intensity, and position.
-4. Select **随机盖水印** (Apply Random Watermark) to preview a result.
+4. Select **Apply Random Watermark** to preview a result.
 5. Choose an output folder different from the source folder, then save the result.
-6. To merge output images, select **目录图片生成 PDF** (Create PDF from Folder Images).
+6. To merge output images, select **Create PDF from Folder Images**.
 
 ## Project Structure
 
@@ -77,6 +79,7 @@ You can also open `RandomWatermarkTool.slnx` in Visual Studio and run the projec
 Controls/        Custom WPF controls
 Infrastructure/ MVVM infrastructure
 Models/          Data models and constants
+Resources/       English and Simplified Chinese language dictionaries
 Services/        Image, PDF, settings, and dialog services
 ViewModels/      Main window view model
 design/          Interface design preview

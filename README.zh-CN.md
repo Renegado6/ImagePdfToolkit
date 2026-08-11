@@ -17,11 +17,13 @@ RandomWatermarkTool 是一个面向 Windows 的轻量级随机水印桌面工具
 
 请从 [Releases 页面](https://github.com/shadiao719/RandomWatermarkTool/releases/latest)下载最新的 Windows 免安装版。
 
-1. 下载 `RandomWatermarkTool-v1.0.0-win-x64.zip`。
+1. 下载 `RandomWatermarkTool-v1.1.0-win-x64.zip`。
 2. 将 ZIP 文件解压到任意文件夹。
 3. 运行 `RandomWatermarkTool.exe`。
 
 免安装版已经包含运行所需的 .NET 组件，不需要另外安装 .NET。由于程序暂未购买代码签名证书，Windows 可能显示 SmartScreen 提示；请确认文件来自本仓库后再选择运行。
+
+程序首次启动时会自动跟随 Windows 显示语言。状态栏右侧可以随时选择“跟随系统 / English / 简体中文”，选择结果会在下次启动时继续使用。
 
 ## 功能
 
@@ -35,6 +37,8 @@ RandomWatermarkTool 是一个面向 Windows 的轻量级随机水印桌面工具
 - 记忆上次使用的底图、水印、输出目录及参数
 - 将输出目录中的图片按顺序合并为 PDF
 - 所有图片处理均在本机完成，不会上传到网络
+- 支持英文和简体中文运行时切换
+- 默认自动跟随 Windows 显示语言
 
 ## 开发环境
 
@@ -75,6 +79,7 @@ dotnet run --project RandomWatermarkTool.csproj
 Controls/        自定义 WPF 控件
 Infrastructure/ MVVM 基础设施
 Models/          数据模型与常量
+Resources/       英文和简体中文语言资源
 Services/        图片处理、PDF、设置和对话框服务
 ViewModels/      主窗口视图模型
 design/          界面设计预览
@@ -91,4 +96,3 @@ dotnet build -c Release
 ## 许可证
 
 本项目使用 [MIT License](LICENSE) 开源。
-

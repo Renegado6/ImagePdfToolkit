@@ -1,12 +1,14 @@
 using System.Drawing;
 using System.IO;
 using RandomWatermarkTool.Infrastructure;
+using RandomWatermarkTool.Services;
 using ImageSource = System.Windows.Media.ImageSource;
 
 namespace RandomWatermarkTool.Models;
 
 public sealed class WatermarkSlotModel : ObservableObject, IDisposable
 {
+    private readonly LocalizationService _localization = LocalizationService.Instance;
     private string? _filePath;
     private ImageSource? _previewImage;
 
@@ -17,7 +19,7 @@ public sealed class WatermarkSlotModel : ObservableObject, IDisposable
 
     public int Index { get; }
 
-    public string Title => $"水印 {Index + 1}";
+    public string Title => _localization.Format("WatermarkSlotTitleFormat", Index + 1);
 
     public string? FilePath
     {
@@ -33,7 +35,7 @@ public sealed class WatermarkSlotModel : ObservableObject, IDisposable
     }
 
     public string DisplayName => string.IsNullOrWhiteSpace(FilePath)
-        ? "拖入 PNG 或点击选择"
+        ? _localization.Get("WatermarkDropHint")
         : Path.GetFileName(FilePath);
 
     public ImageSource? PreviewImage
@@ -62,6 +64,12 @@ public sealed class WatermarkSlotModel : ObservableObject, IDisposable
         PreviewImage = null;
         FilePath = null;
         OnPropertyChanged(nameof(HasImage));
+    }
+
+    public void RefreshLocalizedText()
+    {
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(DisplayName));
     }
 
     public void Dispose() => Clear();

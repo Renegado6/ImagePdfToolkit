@@ -6,12 +6,19 @@ namespace RandomWatermarkTool.Services;
 
 public sealed class UserDialogService
 {
+    private readonly LocalizationService _localization;
+
+    public UserDialogService(LocalizationService localization)
+    {
+        _localization = localization;
+    }
+
     public string? PickSourceImage(string? currentPath)
     {
         var dialog = new OpenFileDialog
         {
-            Title = "选择底图",
-            Filter = "图片文件|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff|所有文件|*.*",
+            Title = _localization.Get("DialogSelectSourceTitle"),
+            Filter = $"{_localization.Get("DialogImageFiles")}|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff|{_localization.Get("DialogAllFiles")}|*.*",
             InitialDirectory = GetInitialDirectory(currentPath)
         };
 
@@ -22,8 +29,8 @@ public sealed class UserDialogService
     {
         var dialog = new OpenFileDialog
         {
-            Title = $"选择水印 {slotIndex + 1}",
-            Filter = "PNG 图片|*.png|所有文件|*.*",
+            Title = _localization.Format("DialogSelectWatermarkTitleFormat", slotIndex + 1),
+            Filter = $"{_localization.Get("DialogPngImages")}|*.png|{_localization.Get("DialogAllFiles")}|*.*",
             InitialDirectory = GetInitialDirectory(currentPath)
         };
 
@@ -37,7 +44,7 @@ public sealed class UserDialogService
             : GetInitialDirectory(sourcePath);
         var dialog = new OpenFolderDialog
         {
-            Title = "选择水印结果输出目录",
+            Title = _localization.Get("DialogSelectOutputTitle"),
             InitialDirectory = initialDirectory ?? string.Empty,
             Multiselect = false
         };

@@ -2,6 +2,8 @@ namespace RandomWatermarkTool.Models;
 
 public sealed class AppSettings
 {
+    public string LanguageCode { get; set; } = Services.LocalizationService.SystemLanguageCode;
+
     public string? SourceImagePath { get; set; }
 
     public string?[] WatermarkPaths { get; set; } = new string?[AppConstants.SlotCount];

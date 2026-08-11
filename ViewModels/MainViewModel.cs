@@ -14,6 +14,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly PdfExportService _pdfService;
     private readonly SettingsService _settingsService;
     private readonly UserDialogService _dialogs;
+    private readonly LocalizationService _localization;
     private readonly Random _random = new();
     private Bitmap? _sourceImage;
     private Bitmap? _previewBitmap;
@@ -27,14 +28,28 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private int _watermarkColorDepthPercent = AppConstants.DefaultWatermarkColorDepthPercent;
     private int _offsetXPercent;
     private int _offsetYPercent;
-    private string _statusText = "准备就绪";
+    private string _statusText = string.Empty;
+    private string _statusResourceKey = "StatusReady";
+    private object?[] _statusArguments = [];
+    private LanguageOption? _selectedLanguage;
 
     public MainViewModel()
     {
         _imageService = new ImageProcessingService();
         _pdfService = new PdfExportService(_imageService);
         _settingsService = new SettingsService();
-        _dialogs = new UserDialogService();
+        _localization = LocalizationService.Instance;
+        _dialogs = new UserDialogService(_localization);
+
+        Languages =
+        [
+            new LanguageOption(LocalizationService.SystemLanguageCode, "System default / 跟随系统"),
+            new LanguageOption(LocalizationService.EnglishLanguageCode, "English"),
+            new LanguageOption(LocalizationService.SimplifiedChineseLanguageCode, "简体中文")
+        ];
+        _selectedLanguage = Languages.First(option => option.Code == _localization.SelectedLanguageCode);
+        _statusText = _localization.Get(_statusResourceKey);
+        _localization.LanguageChanged += OnLanguageChanged;
 
         WatermarkSlots = new ObservableCollection<WatermarkSlotModel>(
             Enumerable.Range(0, AppConstants.SlotCount).Select(index => new WatermarkSlotModel(index)));
@@ -55,6 +70,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<WatermarkSlotModel> WatermarkSlots { get; }
 
+    public IReadOnlyList<LanguageOption> Languages { get; }
+
     public RelayCommand PickSourceCommand { get; }
 
     public RelayCommand PickWatermarkCommand { get; }
@@ -72,6 +89,22 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public RelayCommand ClearWatermarksCommand { get; }
 
     public RelayCommand MoveOffsetCommand { get; }
+
+    public LanguageOption? SelectedLanguage
+    {
+        get => _selectedLanguage;
+        set
+        {
+            if (value is null || !SetProperty(ref _selectedLanguage, value))
+            {
+                return;
+            }
+
+            _localization.SetLanguage(value.Code);
+            SaveSettings();
+            SetStatus("StatusLanguageChangedFormat", value.DisplayName);
+        }
+    }
 
     public ImageSource? PreviewImage
     {
@@ -117,9 +150,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     public int OffsetYPercent => _offsetYPercent;
 
-    public string OffsetXDisplay => $"左右 {FormatSignedPercent(_offsetXPercent)}";
+    public string OffsetXDisplay => _localization.Format("OffsetHorizontalFormat", FormatSignedPercent(_offsetXPercent));
 
-    public string OffsetYDisplay => $"上下 {FormatSignedPercent(_offsetYPercent)}";
+    public string OffsetYDisplay => _localization.Format("OffsetVerticalFormat", FormatSignedPercent(_offsetYPercent));
 
     public string StatusText
     {
@@ -133,20 +166,20 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             if (string.IsNullOrWhiteSpace(_outputDirectory))
             {
-                return "输出目录：未选择";
+                return _localization.Get("OutputDirectoryNotSelected");
             }
 
             if (!Directory.Exists(_outputDirectory))
             {
-                return $"输出目录不存在：{_outputDirectory}";
+                return _localization.Format("OutputDirectoryMissingFormat", _outputDirectory);
             }
 
             if (IsSourceImageDirectory(_outputDirectory))
             {
-                return "输出目录不能是原图所在文件夹";
+                return _localization.Get("OutputDirectoryUnsafe");
             }
 
-            return $"输出目录：{_outputDirectory}";
+            return _localization.Format("OutputDirectoryFormat", _outputDirectory);
         }
     }
 
@@ -191,7 +224,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             if (showError)
             {
-                _dialogs.ShowWarning("请选择 PNG、JPG、BMP、GIF 或 TIFF 图片。", "格式不支持");
+                _dialogs.ShowWarning(
+                    _localization.Get("MessageUnsupportedSource"),
+                    _localization.Get("TitleUnsupportedFormat"));
             }
 
             return false;
@@ -205,7 +240,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             _sourceImagePath = path;
             _lastRenderState = null;
             SetPreviewBitmap((Bitmap)loaded.Clone(), hasWatermark: false);
-            StatusText = $"已载入底图：{Path.GetFileName(path)}";
+            SetStatus("StatusSourceLoadedFormat", Path.GetFileName(path));
             if (remember)
             {
                 SaveSettings();
@@ -218,7 +253,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             if (showError)
             {
-                _dialogs.ShowError($"底图载入失败：\n{ex.Message}", "载入失败");
+                _dialogs.ShowError(
+                    _localization.Format("MessageLoadSourceFailedFormat", Environment.NewLine, ex.Message),
+                    _localization.Get("TitleLoadFailed"));
             }
 
             return false;
@@ -231,7 +268,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             if (showError)
             {
-                _dialogs.ShowWarning("水印槽只接受 PNG 图片。", "格式不支持");
+                _dialogs.ShowWarning(
+                    _localization.Get("MessageWatermarkPngOnly"),
+                    _localization.Get("TitleUnsupportedFormat"));
             }
 
             return false;
@@ -241,7 +280,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             var loaded = _imageService.LoadBitmapCopy(path);
             slot.Replace(loaded, _imageService.CreatePreviewSource(loaded), path);
-            StatusText = $"已载入水印 {slot.Index + 1}：{Path.GetFileName(path)}";
+            SetStatus("StatusWatermarkLoadedFormat", slot.Index + 1, Path.GetFileName(path));
             if (remember)
             {
                 SaveSettings();
@@ -254,7 +293,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             if (showError)
             {
-                _dialogs.ShowError($"水印载入失败：\n{ex.Message}", "载入失败");
+                _dialogs.ShowError(
+                    _localization.Format("MessageLoadWatermarkFailedFormat", Environment.NewLine, ex.Message),
+                    _localization.Get("TitleLoadFailed"));
             }
 
             return false;
@@ -268,14 +309,18 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         if (_sourceImage is null)
         {
-            _dialogs.ShowInfo("请先拖入底图。", "缺少底图");
+            _dialogs.ShowInfo(
+                _localization.Get("MessageMissingSource"),
+                _localization.Get("TitleMissingSource"));
             return;
         }
 
         var availableSlots = WatermarkSlots.Where(slot => slot.Image is not null).ToArray();
         if (availableSlots.Length == 0)
         {
-            _dialogs.ShowInfo("请至少放入 1 个 PNG 水印。", "缺少水印");
+            _dialogs.ShowInfo(
+                _localization.Get("MessageMissingWatermark"),
+                _localization.Get("TitleMissingWatermark"));
             return;
         }
 
@@ -304,7 +349,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             if (showMissingWatermarkError)
             {
-                _dialogs.ShowInfo("这次生成使用的水印已经不存在，请重新生成。", "缺少水印");
+                _dialogs.ShowInfo(
+                    _localization.Get("MessageSelectedWatermarkMissing"),
+                    _localization.Get("TitleMissingWatermark"));
             }
 
             return false;
@@ -320,11 +367,17 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             _offsetYPercent);
         _lastRenderState = state;
         SetPreviewBitmap(render.Image, hasWatermark: true);
-        var direction = state.Angle >= 0 ? "顺时针" : "逆时针";
-        StatusText =
-            $"已使用水印 {slot.Index + 1} · 大小 {WatermarkSizePercent}% · 深浅 {WatermarkColorDepthPercent}% · " +
-            $"左右 {FormatSignedPercent(_offsetXPercent)} · 上下 {FormatSignedPercent(_offsetYPercent)} · " +
-            $"实际强度 {render.EffectiveOpacity:P0} · {direction} {Math.Abs(state.Angle):0.#}°";
+        var direction = _localization.Get(state.Angle >= 0 ? "DirectionClockwise" : "DirectionCounterclockwise");
+        SetStatus(
+            "StatusWatermarkAppliedFormat",
+            slot.Index + 1,
+            WatermarkSizePercent,
+            WatermarkColorDepthPercent,
+            FormatSignedPercent(_offsetXPercent),
+            FormatSignedPercent(_offsetYPercent),
+            render.EffectiveOpacity,
+            direction,
+            Math.Abs(state.Angle));
         RefreshDerivedState();
         return true;
     }
@@ -344,7 +397,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        StatusText = "已记住水印大小、深浅和位置，下一次生成生效";
+        SetStatus("StatusSettingsRemembered");
     }
 
     private void MoveOffset(object? parameter)
@@ -402,7 +455,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         if (_previewBitmap is null || !_hasWatermarkedResult)
         {
-            _dialogs.ShowInfo("请先生成水印结果。", "没有结果");
+            _dialogs.ShowInfo(
+                _localization.Get("MessageNoResult"),
+                _localization.Get("TitleNoResult"));
             return;
         }
 
@@ -416,11 +471,13 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             var fileName = GetOutputFileName();
             _imageService.SaveByExtension(_previewBitmap, Path.Combine(_outputDirectory!, fileName));
             ResetOffsetsAfterSave();
-            StatusText = $"已保存到输出目录：{fileName}，左右/上下已重置为 0";
+            SetStatus("StatusSavedFormat", fileName);
         }
         catch (Exception ex)
         {
-            _dialogs.ShowError($"保存失败：\n{ex.Message}", "保存失败");
+            _dialogs.ShowError(
+                _localization.Format("MessageSaveFailedFormat", Environment.NewLine, ex.Message),
+                _localization.Get("TitleSaveFailed"));
         }
     }
 
@@ -455,14 +512,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (IsSourceImageDirectory(selected))
         {
             _dialogs.ShowWarning(
-                "输出目录不能选择原图所在文件夹，否则同名保存会覆盖原图。请新建或选择另一个目录。",
-                "目录不安全");
+                _localization.Get("MessageUnsafeDirectoryChooseAnother"),
+                _localization.Get("TitleUnsafeDirectory"));
             return;
         }
 
         _outputDirectory = selected;
         SaveSettings();
-        StatusText = $"已选择输出目录：{selected}";
+        SetStatus("StatusOutputSelectedFormat", selected);
         RefreshDerivedState();
     }
 
@@ -476,19 +533,23 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var imagePaths = _pdfService.GetOrderedSourceImages(_outputDirectory!);
         if (imagePaths.Count == 0)
         {
-            _dialogs.ShowInfo("输出目录里没有可生成 PDF 的图片。", "没有图片");
+            _dialogs.ShowInfo(
+                _localization.Get("MessageNoImages"),
+                _localization.Get("TitleNoImages"));
             return;
         }
 
-        var pdfPath = Path.Combine(_outputDirectory!, "合并结果.pdf");
+        var pdfPath = Path.Combine(_outputDirectory!, _localization.Get("MergedPdfFileName"));
         try
         {
             _pdfService.WriteImagesToPdf(imagePaths, pdfPath);
-            StatusText = $"已生成 PDF：{Path.GetFileName(pdfPath)}，共 {imagePaths.Count} 张图片";
+            SetStatus("StatusPdfCreatedFormat", Path.GetFileName(pdfPath), imagePaths.Count);
         }
         catch (Exception ex)
         {
-            _dialogs.ShowError($"生成 PDF 失败：\n{ex.Message}", "生成失败");
+            _dialogs.ShowError(
+                _localization.Format("MessagePdfFailedFormat", Environment.NewLine, ex.Message),
+                _localization.Get("TitleGenerationFailed"));
         }
     }
 
@@ -496,21 +557,25 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         if (string.IsNullOrWhiteSpace(_outputDirectory))
         {
-            _dialogs.ShowInfo("请先点击“选择输出目录”。", "缺少输出目录");
+            _dialogs.ShowInfo(
+                _localization.Get("MessageMissingOutputDirectory"),
+                _localization.Get("TitleMissingOutputDirectory"));
             return false;
         }
 
         if (!Directory.Exists(_outputDirectory))
         {
-            _dialogs.ShowWarning("输出目录不存在，请重新选择。", "输出目录无效");
+            _dialogs.ShowWarning(
+                _localization.Get("MessageOutputDirectoryMissing"),
+                _localization.Get("TitleInvalidOutputDirectory"));
             return false;
         }
 
         if (IsSourceImageDirectory(_outputDirectory))
         {
             _dialogs.ShowWarning(
-                "输出目录不能是原图所在文件夹，否则同名保存会覆盖原图。请重新选择输出目录。",
-                "目录不安全");
+                _localization.Get("MessageUnsafeDirectoryReselect"),
+                _localization.Get("TitleUnsafeDirectory"));
             return false;
         }
 
@@ -564,7 +629,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         SetPreviewBitmap((Bitmap)_sourceImage.Clone(), hasWatermark: false);
         _lastRenderState = null;
-        StatusText = "已恢复原图";
+        SetStatus("StatusSourceRestored");
         RefreshDerivedState();
     }
 
@@ -576,7 +641,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
 
         _lastRenderState = null;
-        StatusText = "已清空水印";
+        SetStatus("StatusWatermarksCleared");
         SaveSettings();
         RefreshDerivedState();
     }
@@ -625,7 +690,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
             if (restoredSource || restoredWatermarks > 0)
             {
-                StatusText = $"已恢复上次素材：{(restoredSource ? "底图" : "无底图")}，{restoredWatermarks} 个水印";
+                SetStatus(
+                    "StatusAssetsRestoredFormat",
+                    _localization.Get(restoredSource ? "RestoredSourceImage" : "RestoredNoSourceImage"),
+                    restoredWatermarks);
             }
         }
         finally
@@ -643,6 +711,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         _settingsService.Save(new AppSettings
         {
+            LanguageCode = _localization.SelectedLanguageCode,
             SourceImagePath = _sourceImagePath,
             WatermarkPaths = WatermarkSlots.Select(slot => slot.FilePath).ToArray(),
             OutputDirectory = _outputDirectory,
@@ -652,6 +721,26 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             WatermarkOffsetXPercent = _offsetXPercent,
             WatermarkOffsetYPercent = _offsetYPercent
         });
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        foreach (var slot in WatermarkSlots)
+        {
+            slot.RefreshLocalizedText();
+        }
+
+        OnPropertyChanged(nameof(OffsetXDisplay));
+        OnPropertyChanged(nameof(OffsetYDisplay));
+        OnPropertyChanged(nameof(OutputDirectoryDisplay));
+        StatusText = _localization.Format(_statusResourceKey, _statusArguments);
+    }
+
+    private void SetStatus(string resourceKey, params object?[] arguments)
+    {
+        _statusResourceKey = resourceKey;
+        _statusArguments = arguments;
+        StatusText = _localization.Format(resourceKey, arguments);
     }
 
     private void RefreshDerivedState()
@@ -670,6 +759,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        _localization.LanguageChanged -= OnLanguageChanged;
         _sourceImage?.Dispose();
         _previewBitmap?.Dispose();
         foreach (var slot in WatermarkSlots)
