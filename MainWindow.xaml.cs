@@ -1,0 +1,94 @@
+using System.ComponentModel;
+using System.IO;
+using System.Windows;
+using System.Windows.Input;
+using RandomWatermarkTool.Models;
+using RandomWatermarkTool.Services;
+using RandomWatermarkTool.ViewModels;
+
+namespace RandomWatermarkTool;
+
+public partial class MainWindow : Window
+{
+    private MainViewModel ViewModel => (MainViewModel)DataContext;
+
+    public MainWindow()
+    {
+        InitializeComponent();
+        DataContext = new MainViewModel();
+    }
+
+    private void PreviewDropZone_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            ViewModel.PickSourceCommand.Execute(null);
+        }
+    }
+
+    private void PreviewDropZone_OnDragEnter(object sender, DragEventArgs e)
+    {
+        e.Effects = TryGetDroppedFile(e, out var path)
+                    && ImageProcessingService.IsSupportedSourceImage(path)
+            ? DragDropEffects.Copy
+            : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void PreviewDropZone_OnDrop(object sender, DragEventArgs e)
+    {
+        if (TryGetDroppedFile(e, out var path) && ImageProcessingService.IsSupportedSourceImage(path))
+        {
+            ViewModel.LoadDroppedSource(path);
+        }
+
+        e.Handled = true;
+    }
+
+    private void WatermarkSlot_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left
+            && sender is FrameworkElement { DataContext: WatermarkSlotModel slot })
+        {
+            ViewModel.PickWatermarkCommand.Execute(slot);
+        }
+    }
+
+    private void WatermarkSlot_OnDragEnter(object sender, DragEventArgs e)
+    {
+        e.Effects = TryGetDroppedFile(e, out var path) && ImageProcessingService.IsPngFile(path)
+            ? DragDropEffects.Copy
+            : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void WatermarkSlot_OnDrop(object sender, DragEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: WatermarkSlotModel slot }
+            && TryGetDroppedFile(e, out var path)
+            && ImageProcessingService.IsPngFile(path))
+        {
+            ViewModel.LoadDroppedWatermark(slot, path);
+        }
+
+        e.Handled = true;
+    }
+
+    private static bool TryGetDroppedFile(DragEventArgs e, out string path)
+    {
+        path = string.Empty;
+        if (!e.Data.GetDataPresent(DataFormats.FileDrop)
+            || e.Data.GetData(DataFormats.FileDrop) is not string[] { Length: > 0 } paths)
+        {
+            return false;
+        }
+
+        path = paths[0];
+        return File.Exists(path);
+    }
+
+    private void Window_OnClosing(object? sender, CancelEventArgs e)
+    {
+        ViewModel.Dispose();
+    }
+}
