@@ -1,25 +1,25 @@
-# RandomWatermarkTool
+# ImagePdfToolkit
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 [![平台](https://img.shields.io/badge/platform-Windows-0078D4)](https://www.microsoft.com/windows)
 [![许可证](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![最新版本](https://img.shields.io/github/v/release/shadiao719/RandomWatermarkTool)](https://github.com/shadiao719/RandomWatermarkTool/releases/latest)
+[![最新版本](https://img.shields.io/github/v/release/shadiao719/ImagePdfToolkit)](https://github.com/shadiao719/ImagePdfToolkit/releases/latest)
 
-RandomWatermarkTool 是一个面向 Windows 的轻量级随机水印桌面工具。它使用 WPF 和 MVVM 构建，可以从多个 PNG 水印中随机选择、随机旋转并叠加到底图上，也可以将输出目录中的图片合并为 PDF。
+ImagePdfToolkit（图片与 PDF 工具箱）是一款面向 Windows 的轻量级本地图片处理工具。它使用 WPF 和 MVVM 构建，支持随机 PNG 水印、图片合并为 PDF，以及将 PDF 的每一页拆分为 PNG 图片。
 
-![RandomWatermarkTool 简体中文界面](design/wpf-ui-zh-CN.png)
+![图片与 PDF 工具箱简体中文界面](design/wpf-ui-zh-CN.png)
 
 > 简体中文界面，右下角包含运行时语言选择器。
 
 ## 下载使用
 
-请从 [Releases 页面](https://github.com/shadiao719/RandomWatermarkTool/releases/latest)下载最新的 Windows 免安装版。
+请从 [Releases 页面](https://github.com/shadiao719/ImagePdfToolkit/releases/latest)下载最新的 Windows 免安装版。
 
-1. 下载 `RandomWatermarkTool-v1.1.0-win-x64.zip`。
+1. 下载 `ImagePdfToolkit-v1.2.0-win-x64.zip`。
 2. 将 ZIP 文件解压到任意文件夹。
-3. 运行 `RandomWatermarkTool.exe`。
+3. 运行 `ImagePdfToolkit.exe`。
 
 免安装版已经包含运行所需的 .NET 组件，不需要另外安装 .NET。由于程序暂未购买代码签名证书，Windows 可能显示 SmartScreen 提示；请确认文件来自本仓库后再选择运行。
 
@@ -36,6 +36,8 @@ RandomWatermarkTool 是一个面向 Windows 的轻量级随机水印桌面工具
 - 实时预览并保存处理后的图片
 - 记忆上次使用的底图、水印、输出目录及参数
 - 将输出目录中的图片按顺序合并为 PDF
+- 拖入或选择 PDF 后指定保存目录，将每一页导出为 PNG 图片
+- 每次拆分自动创建不会覆盖旧文件的 `{PDF 文件名}_pages` 子目录
 - 所有图片处理均在本机完成，不会上传到网络
 - 支持英文和简体中文运行时切换
 - 默认自动跟随 Windows 显示语言
@@ -51,18 +53,18 @@ RandomWatermarkTool 是一个面向 Windows 的轻量级随机水印桌面工具
 克隆仓库：
 
 ```powershell
-git clone https://github.com/shadiao719/RandomWatermarkTool.git
-cd RandomWatermarkTool
+git clone https://github.com/shadiao719/ImagePdfToolkit.git
+cd ImagePdfToolkit
 ```
 
 构建并运行：
 
 ```powershell
 dotnet build
-dotnet run --project RandomWatermarkTool.csproj
+dotnet run --project ImagePdfToolkit.csproj
 ```
 
-也可以使用 Visual Studio 打开 `RandomWatermarkTool.slnx` 后直接运行。
+也可以使用 Visual Studio 打开 `ImagePdfToolkit.slnx` 后直接运行。
 
 ## 使用方法
 
@@ -72,6 +74,8 @@ dotnet run --project RandomWatermarkTool.csproj
 4. 点击“随机盖水印”查看结果。
 5. 选择一个与原图目录不同的输出目录，然后保存结果。
 6. 如需合并图片，点击“目录图片生成 PDF”。
+
+如需拆分 PDF，可将 PDF 拖入预览区，或通过文件选择器打开。随后在弹出的窗口中选择保存目录；程序会新建 `{PDF 文件名}_pages` 子目录，并依次输出 `page-001.png`、`page-002.png` 等分页图片。
 
 ## 项目结构
 
@@ -95,4 +99,4 @@ dotnet build -c Release
 
 ## 许可证
 
-本项目使用 [MIT License](LICENSE) 开源。
+本项目使用 [MIT License](LICENSE) 开源。PDF 渲染由采用 MIT 许可证的 [PDFtoImage](https://github.com/sungaila/PDFtoImage) 提供。

@@ -2,7 +2,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Windows;
 
-namespace RandomWatermarkTool.Services;
+namespace ImagePdfToolkit.Services;
 
 public sealed class UserDialogService
 {
@@ -18,7 +18,7 @@ public sealed class UserDialogService
         var dialog = new OpenFileDialog
         {
             Title = _localization.Get("DialogSelectSourceTitle"),
-            Filter = $"{_localization.Get("DialogImageFiles")}|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff|{_localization.Get("DialogAllFiles")}|*.*",
+            Filter = $"{_localization.Get("DialogSupportedInputFiles")}|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff;*.pdf|{_localization.Get("DialogImageFiles")}|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff|{_localization.Get("DialogPdfFiles")}|*.pdf|{_localization.Get("DialogAllFiles")}|*.*",
             InitialDirectory = GetInitialDirectory(currentPath)
         };
 
@@ -46,6 +46,18 @@ public sealed class UserDialogService
         {
             Title = _localization.Get("DialogSelectOutputTitle"),
             InitialDirectory = initialDirectory ?? string.Empty,
+            Multiselect = false
+        };
+
+        return dialog.ShowDialog() == true ? dialog.FolderName : null;
+    }
+
+    public string? PickPdfImageOutputDirectory(string pdfPath)
+    {
+        var dialog = new OpenFolderDialog
+        {
+            Title = _localization.Get("DialogSelectPdfOutputTitle"),
+            InitialDirectory = GetInitialDirectory(pdfPath) ?? string.Empty,
             Multiselect = false
         };
 

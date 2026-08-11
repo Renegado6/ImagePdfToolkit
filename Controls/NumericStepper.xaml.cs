@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace RandomWatermarkTool.Controls;
+namespace ImagePdfToolkit.Controls;
 
 public partial class NumericStepper : UserControl
 {

@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace RandomWatermarkTool.Services;
+namespace ImagePdfToolkit.Services;
 
 public sealed class PdfExportService
 {

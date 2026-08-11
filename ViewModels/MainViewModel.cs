@@ -1,17 +1,18 @@
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
-using RandomWatermarkTool.Infrastructure;
-using RandomWatermarkTool.Models;
-using RandomWatermarkTool.Services;
+using ImagePdfToolkit.Infrastructure;
+using ImagePdfToolkit.Models;
+using ImagePdfToolkit.Services;
 using ImageSource = System.Windows.Media.ImageSource;
 
-namespace RandomWatermarkTool.ViewModels;
+namespace ImagePdfToolkit.ViewModels;
 
 public sealed class MainViewModel : ObservableObject, IDisposable
 {
     private readonly ImageProcessingService _imageService;
     private readonly PdfExportService _pdfService;
+    private readonly PdfImageExtractionService _pdfImageExtractionService;
     private readonly SettingsService _settingsService;
     private readonly UserDialogService _dialogs;
     private readonly LocalizationService _localization;
@@ -24,6 +25,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private WatermarkRenderState? _lastRenderState;
     private bool _hasWatermarkedResult;
     private bool _isRestoringSettings;
+    private bool _isExtractingPdf;
     private int _watermarkSizePercent = AppConstants.DefaultWatermarkSizePercent;
     private int _watermarkColorDepthPercent = AppConstants.DefaultWatermarkColorDepthPercent;
     private int _offsetXPercent;
@@ -37,6 +39,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         _imageService = new ImageProcessingService();
         _pdfService = new PdfExportService(_imageService);
+        _pdfImageExtractionService = new PdfImageExtractionService();
         _settingsService = new SettingsService();
         _localization = LocalizationService.Instance;
         _dialogs = new UserDialogService(_localization);
@@ -54,7 +57,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         WatermarkSlots = new ObservableCollection<WatermarkSlotModel>(
             Enumerable.Range(0, AppConstants.SlotCount).Select(index => new WatermarkSlotModel(index)));
 
-        PickSourceCommand = new RelayCommand(PickSourceImage);
+        PickSourceCommand = new RelayCommand(PickSourceFile);
         PickWatermarkCommand = new RelayCommand(PickWatermark);
         ApplyWatermarkCommand = new RelayCommand(ApplyRandomWatermark, CanApplyWatermark);
         SaveResultCommand = new RelayCommand(SaveResult, CanSaveResult);
@@ -185,9 +188,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     public bool IsOutputDirectoryError => !string.IsNullOrWhiteSpace(_outputDirectory) && !IsOutputDirectoryValid();
 
-    public void LoadDroppedSource(string path)
+    public Task LoadDroppedFileAsync(string path)
     {
-        LoadSourceImage(path, remember: true, showError: true);
+        return HandleInputFileAsync(path);
     }
 
     public void LoadDroppedWatermark(WatermarkSlotModel slot, string path)
@@ -195,12 +198,72 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         LoadWatermark(slot, path, remember: true, showError: true);
     }
 
-    private void PickSourceImage()
+    private async void PickSourceFile()
     {
         var path = _dialogs.PickSourceImage(_sourceImagePath);
         if (!string.IsNullOrWhiteSpace(path))
         {
-            LoadSourceImage(path, remember: true, showError: true);
+            await HandleInputFileAsync(path);
+        }
+    }
+
+    private async Task HandleInputFileAsync(string path)
+    {
+        if (PdfImageExtractionService.IsPdfFile(path))
+        {
+            await ExtractPdfPagesAsync(path);
+            return;
+        }
+
+        LoadSourceImage(path, remember: true, showError: true);
+    }
+
+    private async Task ExtractPdfPagesAsync(string pdfPath)
+    {
+        if (_isExtractingPdf)
+        {
+            _dialogs.ShowInfo(
+                _localization.Get("MessagePdfExtractionBusy"),
+                _localization.Get("TitlePdfExtractionBusy"));
+            return;
+        }
+
+        var selectedOutputDirectory = _dialogs.PickPdfImageOutputDirectory(pdfPath);
+        if (string.IsNullOrWhiteSpace(selectedOutputDirectory))
+        {
+            return;
+        }
+
+        _isExtractingPdf = true;
+        SetStatus("StatusPdfExtractionStartingFormat", Path.GetFileName(pdfPath));
+        try
+        {
+            var progress = new Progress<PdfExtractionProgress>(value =>
+            {
+                if (value.CompletedPages == 0)
+                {
+                    SetStatus("StatusPdfExtractionPreparingFormat", value.TotalPages);
+                    return;
+                }
+
+                SetStatus("StatusPdfExtractionProgressFormat", value.CompletedPages, value.TotalPages);
+            });
+            var result = await _pdfImageExtractionService.ExtractAllPagesAsync(
+                pdfPath,
+                selectedOutputDirectory,
+                progress);
+            SetStatus("StatusPdfExtractionCompletedFormat", result.PageCount, result.OutputDirectory);
+        }
+        catch (Exception ex)
+        {
+            _dialogs.ShowError(
+                _localization.Format("MessagePdfExtractionFailedFormat", Environment.NewLine, ex.Message),
+                _localization.Get("TitlePdfExtractionFailed"));
+            SetStatus("StatusPdfExtractionFailed");
+        }
+        finally
+        {
+            _isExtractingPdf = false;
         }
     }
 

@@ -1,25 +1,25 @@
-# RandomWatermarkTool
+# ImagePdfToolkit
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](https://www.microsoft.com/windows)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Latest release](https://img.shields.io/github/v/release/shadiao719/RandomWatermarkTool)](https://github.com/shadiao719/RandomWatermarkTool/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/shadiao719/ImagePdfToolkit)](https://github.com/shadiao719/ImagePdfToolkit/releases/latest)
 
-RandomWatermarkTool is a lightweight Windows desktop application for applying randomized PNG watermarks to images. It is built with WPF and MVVM, supports multiple watermark candidates, and can also merge images from an output folder into a PDF.
+ImagePdfToolkit (Image & PDF Toolkit) is a lightweight local Windows desktop application for watermarking images and converting between images and PDF. Built with WPF and MVVM, it supports randomized PNG watermarks, merging images into a PDF, and extracting every PDF page as a PNG image.
 
-![RandomWatermarkTool English interface](design/wpf-ui-en-US.png)
+![Image & PDF Toolkit English interface](design/wpf-ui-en-US.png)
 
 > English interface with the runtime language selector in the bottom-right corner.
 
 ## Download
 
-Download the latest ready-to-run Windows package from the [Releases page](https://github.com/shadiao719/RandomWatermarkTool/releases/latest).
+Download the latest ready-to-run Windows package from the [Releases page](https://github.com/shadiao719/ImagePdfToolkit/releases/latest).
 
-1. Download `RandomWatermarkTool-v1.1.0-win-x64.zip`.
+1. Download `ImagePdfToolkit-v1.2.0-win-x64.zip`.
 2. Extract the ZIP file to any folder.
-3. Run `RandomWatermarkTool.exe`.
+3. Run `ImagePdfToolkit.exe`.
 
 The portable build is self-contained and does not require a separate .NET installation. Windows may show a SmartScreen warning because the executable is not code-signed; review the publisher information and choose to run it only if you downloaded it from this repository.
 
@@ -36,6 +36,8 @@ On first launch, the application follows the Windows display language. You can s
 - Preview and save the processed image
 - Remember the last source image, watermarks, output folder, and settings
 - Merge images from the output folder into a PDF
+- Drop or select a PDF, choose a destination folder, and export every page as a PNG image
+- Create a collision-safe `{PDF name}_pages` subfolder for each PDF extraction
 - Process all images locally without uploading them to a server
 - Switch between English and Simplified Chinese at runtime
 - Follow the Windows display language automatically by default
@@ -51,18 +53,18 @@ On first launch, the application follows the Windows display language. You can s
 Clone the repository:
 
 ```powershell
-git clone https://github.com/shadiao719/RandomWatermarkTool.git
-cd RandomWatermarkTool
+git clone https://github.com/shadiao719/ImagePdfToolkit.git
+cd ImagePdfToolkit
 ```
 
 Build and run:
 
 ```powershell
 dotnet build
-dotnet run --project RandomWatermarkTool.csproj
+dotnet run --project ImagePdfToolkit.csproj
 ```
 
-You can also open `RandomWatermarkTool.slnx` in Visual Studio and run the project directly.
+You can also open `ImagePdfToolkit.slnx` in Visual Studio and run the project directly.
 
 ## Usage
 
@@ -72,6 +74,8 @@ You can also open `RandomWatermarkTool.slnx` in Visual Studio and run the projec
 4. Select **Apply Random Watermark** to preview a result.
 5. Choose an output folder different from the source folder, then save the result.
 6. To merge output images, select **Create PDF from Folder Images**.
+
+To extract a PDF, drop it into the preview area or select it from the file picker. Choose a destination folder when prompted; the application creates a new `{PDF name}_pages` subfolder and saves each page as `page-001.png`, `page-002.png`, and so on.
 
 ## Project Structure
 
@@ -95,4 +99,4 @@ dotnet build -c Release
 
 ## License
 
-This project is available under the [MIT License](LICENSE).
+This project is available under the [MIT License](LICENSE). PDF rendering is provided by the MIT-licensed [PDFtoImage](https://github.com/sungaila/PDFtoImage) library.

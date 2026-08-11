@@ -1,6 +1,6 @@
 using System.Windows.Input;
 
-namespace RandomWatermarkTool.Infrastructure;
+namespace ImagePdfToolkit.Infrastructure;
 
 public sealed class RelayCommand : ICommand
 {

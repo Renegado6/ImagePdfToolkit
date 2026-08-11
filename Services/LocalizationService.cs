@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Windows;
 
-namespace RandomWatermarkTool.Services;
+namespace ImagePdfToolkit.Services;
 
 public sealed class LocalizationService
 {

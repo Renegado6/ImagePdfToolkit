@@ -1,7 +1,7 @@
-<Window x:Class="RandomWatermarkTool.MainWindow"
+<Window x:Class="ImagePdfToolkit.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="clr-namespace:RandomWatermarkTool.Controls"
+        xmlns:controls="clr-namespace:ImagePdfToolkit.Controls"
         Title="{DynamicResource AppTitle}"
         Width="1440"
         Height="900"
@@ -393,6 +393,7 @@
                       StrokeEndLineCap="Round" />
                 <TextBlock Grid.Column="1"
                            Text="{Binding StatusText}"
+                           ToolTip="{Binding StatusText}"
                            Foreground="{StaticResource MutedTextBrush}"
                            FontSize="12"
                            VerticalAlignment="Center"

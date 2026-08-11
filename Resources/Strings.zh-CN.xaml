@@ -1,9 +1,9 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
-    <sys:String x:Key="AppTitle">随机水印工具</sys:String>
+    <sys:String x:Key="AppTitle">图片与 PDF 工具箱</sys:String>
     <sys:String x:Key="PreviewTitle">预览</sys:String>
-    <sys:String x:Key="DropSourcePrompt">拖入底图或点击选择图片</sys:String>
+    <sys:String x:Key="DropSourcePrompt">拖入图片或 PDF，或点击选择文件</sys:String>
     <sys:String x:Key="WatermarksTitle">PNG 水印</sys:String>
     <sys:String x:Key="ChooseButton">选择</sys:String>
     <sys:String x:Key="SizeLabel">大小</sys:String>
@@ -33,12 +33,15 @@
     <sys:String x:Key="OutputDirectoryUnsafe">输出目录不能是原图所在文件夹</sys:String>
     <sys:String x:Key="OutputDirectoryFormat">输出目录：{0}</sys:String>
 
-    <sys:String x:Key="DialogSelectSourceTitle">选择底图</sys:String>
+    <sys:String x:Key="DialogSelectSourceTitle">选择图片或 PDF</sys:String>
+    <sys:String x:Key="DialogSupportedInputFiles">支持的文件</sys:String>
     <sys:String x:Key="DialogImageFiles">图片文件</sys:String>
+    <sys:String x:Key="DialogPdfFiles">PDF 文件</sys:String>
     <sys:String x:Key="DialogAllFiles">所有文件</sys:String>
     <sys:String x:Key="DialogSelectWatermarkTitleFormat">选择水印 {0}</sys:String>
     <sys:String x:Key="DialogPngImages">PNG 图片</sys:String>
     <sys:String x:Key="DialogSelectOutputTitle">选择水印结果输出目录</sys:String>
+    <sys:String x:Key="DialogSelectPdfOutputTitle">选择 PDF 分页图片保存目录</sys:String>
 
     <sys:String x:Key="TitleUnsupportedFormat">格式不支持</sys:String>
     <sys:String x:Key="MessageUnsupportedSource">请选择 PNG、JPG、BMP、GIF 或 TIFF 图片。</sys:String>
@@ -66,6 +69,10 @@
     <sys:String x:Key="MessageMissingOutputDirectory">请先点击“选择输出目录”。</sys:String>
     <sys:String x:Key="TitleInvalidOutputDirectory">输出目录无效</sys:String>
     <sys:String x:Key="MessageOutputDirectoryMissing">输出目录不存在，请重新选择。</sys:String>
+    <sys:String x:Key="TitlePdfExtractionBusy">正在拆分 PDF</sys:String>
+    <sys:String x:Key="MessagePdfExtractionBusy">请等待当前 PDF 拆分完成。</sys:String>
+    <sys:String x:Key="TitlePdfExtractionFailed">PDF 拆分失败</sys:String>
+    <sys:String x:Key="MessagePdfExtractionFailedFormat">PDF 分页转图片失败：{0}{1}</sys:String>
 
     <sys:String x:Key="StatusReady">准备就绪</sys:String>
     <sys:String x:Key="StatusSourceLoadedFormat">已载入底图：{0}</sys:String>
@@ -83,5 +90,10 @@
     <sys:String x:Key="RestoredSourceImage">底图</sys:String>
     <sys:String x:Key="RestoredNoSourceImage">无底图</sys:String>
     <sys:String x:Key="StatusLanguageChangedFormat">语言已切换为 {0}</sys:String>
+    <sys:String x:Key="StatusPdfExtractionStartingFormat">正在打开 PDF：{0}</sys:String>
+    <sys:String x:Key="StatusPdfExtractionPreparingFormat">准备导出 {0} 页 PDF</sys:String>
+    <sys:String x:Key="StatusPdfExtractionProgressFormat">正在导出 PDF 第 {0}/{1} 页</sys:String>
+    <sys:String x:Key="StatusPdfExtractionCompletedFormat">已将 PDF 的 {0} 页图片保存到：{1}</sys:String>
+    <sys:String x:Key="StatusPdfExtractionFailed">PDF 拆分失败</sys:String>
     <sys:String x:Key="MergedPdfFileName">合并结果.pdf</sys:String>
 </ResourceDictionary>
