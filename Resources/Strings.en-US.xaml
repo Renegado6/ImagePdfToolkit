@@ -1,9 +1,9 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
-    <sys:String x:Key="AppTitle">Random Watermark Tool</sys:String>
+    <sys:String x:Key="AppTitle">Image &amp; PDF Toolkit</sys:String>
     <sys:String x:Key="PreviewTitle">Preview</sys:String>
-    <sys:String x:Key="DropSourcePrompt">Drop a source image here or click to browse</sys:String>
+    <sys:String x:Key="DropSourcePrompt">Drop an image or PDF here, or click to browse</sys:String>
     <sys:String x:Key="WatermarksTitle">PNG Watermarks</sys:String>
     <sys:String x:Key="ChooseButton">Choose</sys:String>
     <sys:String x:Key="SizeLabel">Size</sys:String>
@@ -33,12 +33,15 @@
     <sys:String x:Key="OutputDirectoryUnsafe">The output folder cannot be the source image folder</sys:String>
     <sys:String x:Key="OutputDirectoryFormat">Output folder: {0}</sys:String>
 
-    <sys:String x:Key="DialogSelectSourceTitle">Select Source Image</sys:String>
+    <sys:String x:Key="DialogSelectSourceTitle">Select an Image or PDF</sys:String>
+    <sys:String x:Key="DialogSupportedInputFiles">Supported files</sys:String>
     <sys:String x:Key="DialogImageFiles">Image files</sys:String>
+    <sys:String x:Key="DialogPdfFiles">PDF files</sys:String>
     <sys:String x:Key="DialogAllFiles">All files</sys:String>
     <sys:String x:Key="DialogSelectWatermarkTitleFormat">Select Watermark {0}</sys:String>
     <sys:String x:Key="DialogPngImages">PNG images</sys:String>
     <sys:String x:Key="DialogSelectOutputTitle">Select Watermark Output Folder</sys:String>
+    <sys:String x:Key="DialogSelectPdfOutputTitle">Select a Folder for Extracted PDF Pages</sys:String>
 
     <sys:String x:Key="TitleUnsupportedFormat">Unsupported Format</sys:String>
     <sys:String x:Key="MessageUnsupportedSource">Select a PNG, JPG, BMP, GIF, or TIFF image.</sys:String>
@@ -66,6 +69,10 @@
     <sys:String x:Key="MessageMissingOutputDirectory">Select an output folder first.</sys:String>
     <sys:String x:Key="TitleInvalidOutputDirectory">Invalid Output Folder</sys:String>
     <sys:String x:Key="MessageOutputDirectoryMissing">The output folder does not exist. Select it again.</sys:String>
+    <sys:String x:Key="TitlePdfExtractionBusy">PDF Extraction in Progress</sys:String>
+    <sys:String x:Key="MessagePdfExtractionBusy">Wait for the current PDF extraction to finish.</sys:String>
+    <sys:String x:Key="TitlePdfExtractionFailed">PDF Extraction Failed</sys:String>
+    <sys:String x:Key="MessagePdfExtractionFailedFormat">Failed to extract PDF pages:{0}{1}</sys:String>
 
     <sys:String x:Key="StatusReady">Ready</sys:String>
     <sys:String x:Key="StatusSourceLoadedFormat">Loaded source image: {0}</sys:String>
@@ -83,6 +90,10 @@
     <sys:String x:Key="RestoredSourceImage">source image</sys:String>
     <sys:String x:Key="RestoredNoSourceImage">no source image</sys:String>
     <sys:String x:Key="StatusLanguageChangedFormat">Language changed to {0}</sys:String>
+    <sys:String x:Key="StatusPdfExtractionStartingFormat">Opening PDF: {0}</sys:String>
+    <sys:String x:Key="StatusPdfExtractionPreparingFormat">Preparing to extract {0} PDF page(s)</sys:String>
+    <sys:String x:Key="StatusPdfExtractionProgressFormat">Extracting PDF page {0} of {1}</sys:String>
+    <sys:String x:Key="StatusPdfExtractionCompletedFormat">Extracted {0} PDF page(s) to: {1}</sys:String>
+    <sys:String x:Key="StatusPdfExtractionFailed">PDF extraction failed</sys:String>
     <sys:String x:Key="MergedPdfFileName">MergedResult.pdf</sys:String>
 </ResourceDictionary>
-

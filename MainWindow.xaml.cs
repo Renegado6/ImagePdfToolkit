@@ -2,11 +2,11 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using RandomWatermarkTool.Models;
-using RandomWatermarkTool.Services;
-using RandomWatermarkTool.ViewModels;
+using ImagePdfToolkit.Models;
+using ImagePdfToolkit.Services;
+using ImagePdfToolkit.ViewModels;
 
-namespace RandomWatermarkTool;
+namespace ImagePdfToolkit;
 
 public partial class MainWindow : Window
 {
@@ -29,17 +29,18 @@ public partial class MainWindow : Window
     private void PreviewDropZone_OnDragEnter(object sender, DragEventArgs e)
     {
         e.Effects = TryGetDroppedFile(e, out var path)
-                    && ImageProcessingService.IsSupportedSourceImage(path)
+                    && (ImageProcessingService.IsSupportedSourceImage(path) || PdfImageExtractionService.IsPdfFile(path))
             ? DragDropEffects.Copy
             : DragDropEffects.None;
         e.Handled = true;
     }
 
-    private void PreviewDropZone_OnDrop(object sender, DragEventArgs e)
+    private async void PreviewDropZone_OnDrop(object sender, DragEventArgs e)
     {
-        if (TryGetDroppedFile(e, out var path) && ImageProcessingService.IsSupportedSourceImage(path))
+        if (TryGetDroppedFile(e, out var path)
+            && (ImageProcessingService.IsSupportedSourceImage(path) || PdfImageExtractionService.IsPdfFile(path)))
         {
-            ViewModel.LoadDroppedSource(path);
+            await ViewModel.LoadDroppedFileAsync(path);
         }
 
         e.Handled = true;

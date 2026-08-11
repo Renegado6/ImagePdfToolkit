@@ -1,4 +1,4 @@
-namespace RandomWatermarkTool.Models;
+namespace ImagePdfToolkit.Models;
 
 public sealed record WatermarkRenderState(
     int SlotIndex,

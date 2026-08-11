@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace RandomWatermarkTool.Infrastructure;
+namespace ImagePdfToolkit.Infrastructure;
 
 public abstract class ObservableObject : INotifyPropertyChanged
 {

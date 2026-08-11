@@ -1,10 +1,10 @@
 using System.Drawing;
 using System.IO;
-using RandomWatermarkTool.Infrastructure;
-using RandomWatermarkTool.Services;
+using ImagePdfToolkit.Infrastructure;
+using ImagePdfToolkit.Services;
 using ImageSource = System.Windows.Media.ImageSource;
 
-namespace RandomWatermarkTool.Models;
+namespace ImagePdfToolkit.Models;
 
 public sealed class WatermarkSlotModel : ObservableObject, IDisposable
 {

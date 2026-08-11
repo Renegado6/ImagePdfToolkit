@@ -1,7 +1,7 @@
 using System.Windows;
-using RandomWatermarkTool.Services;
+using ImagePdfToolkit.Services;
 
-namespace RandomWatermarkTool;
+namespace ImagePdfToolkit;
 
 public partial class App : Application
 {

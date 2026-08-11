@@ -1,8 +1,8 @@
 using System.IO;
 using System.Text.Json;
-using RandomWatermarkTool.Models;
+using ImagePdfToolkit.Models;
 
-namespace RandomWatermarkTool.Services;
+namespace ImagePdfToolkit.Services;
 
 public sealed class SettingsService
 {
@@ -16,7 +16,7 @@ public sealed class SettingsService
         var path = GetSettingsPath();
         if (!File.Exists(path))
         {
-            return null;
+            return LoadLegacySettings();
         }
 
         try
@@ -47,7 +47,35 @@ public sealed class SettingsService
     {
         return Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ImagePdfToolkit",
+            "settings.json");
+    }
+
+    private AppSettings? LoadLegacySettings()
+    {
+        var legacyPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "RandomWatermarkTool",
             "settings.json");
+
+        if (!File.Exists(legacyPath))
+        {
+            return null;
+        }
+
+        try
+        {
+            var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(legacyPath), JsonOptions);
+            if (settings is not null)
+            {
+                Save(settings);
+            }
+
+            return settings;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

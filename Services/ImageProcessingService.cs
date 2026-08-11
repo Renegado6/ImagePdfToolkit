@@ -4,12 +4,12 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
-using RandomWatermarkTool.Models;
+using ImagePdfToolkit.Models;
 using DrawingImage = System.Drawing.Image;
 using DrawingSize = System.Drawing.Size;
 using ImageSource = System.Windows.Media.ImageSource;
 
-namespace RandomWatermarkTool.Services;
+namespace ImagePdfToolkit.Services;
 
 public sealed class ImageProcessingService
 {
