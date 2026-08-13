@@ -7,9 +7,9 @@
     <RootNamespace>ImagePdfToolkit</RootNamespace>
     <Product>Image &amp; PDF Toolkit</Product>
     <Description>Local Windows toolkit for watermarking images and converting between images and PDF.</Description>
-    <Version>1.2.0</Version>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
+    <Version>1.3.0</Version>
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
+    <FileVersion>1.3.0.0</FileVersion>
     <DefaultItemExcludes>$(DefaultItemExcludes);artifacts\**</DefaultItemExcludes>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>

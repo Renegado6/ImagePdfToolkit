@@ -12,14 +12,20 @@ public sealed class WatermarkSlotModel : ObservableObject, IDisposable
     private string? _filePath;
     private ImageSource? _previewImage;
 
-    public WatermarkSlotModel(int index)
+    public WatermarkSlotModel(int groupIndex, int optionIndex)
     {
-        Index = index;
+        GroupIndex = groupIndex;
+        OptionIndex = optionIndex;
+        Index = groupIndex * AppConstants.SlotsPerWatermark + optionIndex;
     }
 
     public int Index { get; }
 
-    public string Title => _localization.Format("WatermarkSlotTitleFormat", Index + 1);
+    public int GroupIndex { get; }
+
+    public int OptionIndex { get; }
+
+    public string Title => _localization.Format("WatermarkCandidateTitleFormat", OptionIndex + 1);
 
     public string? FilePath
     {

@@ -25,11 +25,11 @@ public sealed class UserDialogService
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     }
 
-    public string? PickWatermark(int slotIndex, string? currentPath)
+    public string? PickWatermark(int groupIndex, int optionIndex, string? currentPath)
     {
         var dialog = new OpenFileDialog
         {
-            Title = _localization.Format("DialogSelectWatermarkTitleFormat", slotIndex + 1),
+            Title = _localization.Format("DialogSelectWatermarkTitleFormat", groupIndex + 1, optionIndex + 1),
             Filter = $"{_localization.Get("DialogPngImages")}|*.png|{_localization.Get("DialogAllFiles")}|*.*",
             InitialDirectory = GetInitialDirectory(currentPath)
         };

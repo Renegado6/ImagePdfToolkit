@@ -19,4 +19,22 @@ public sealed class AppSettings
     public int WatermarkOffsetXPercent { get; set; }
 
     public int WatermarkOffsetYPercent { get; set; }
+
+    public int? Watermark2SizePercent { get; set; }
+
+    public int? Watermark2ColorDepthPercent { get; set; }
+
+    public int? Watermark2OffsetXPercent { get; set; }
+
+    public int? Watermark2OffsetYPercent { get; set; }
+
+    public double? WindowLeft { get; set; }
+
+    public double? WindowTop { get; set; }
+
+    public double? WindowWidth { get; set; }
+
+    public double? WindowHeight { get; set; }
+
+    public bool IsWindowMaximized { get; set; }
 }

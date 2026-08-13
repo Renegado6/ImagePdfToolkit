@@ -24,7 +24,11 @@
     <sys:String x:Key="ClearWatermarksButton">清空水印</sys:String>
     <sys:String x:Key="LanguageLabel">语言</sys:String>
 
-    <sys:String x:Key="WatermarkSlotTitleFormat">水印 {0}</sys:String>
+    <sys:String x:Key="WatermarkGroupTitleFormat">水印 {0} 图片（最多 3 张）</sys:String>
+    <sys:String x:Key="WatermarkLayerTitleFormat">水印 {0}</sys:String>
+    <sys:String x:Key="WatermarkImagesTitle">PNG 图片（最多 3 张）</sys:String>
+    <sys:String x:Key="WatermarkCandidateTitleFormat">图片 {0}</sys:String>
+    <sys:String x:Key="WatermarkSettingsTitleFormat">水印 {0} 参数</sys:String>
     <sys:String x:Key="WatermarkDropHint">拖入 PNG 或点击选择</sys:String>
     <sys:String x:Key="OffsetHorizontalFormat">左右 {0}</sys:String>
     <sys:String x:Key="OffsetVerticalFormat">上下 {0}</sys:String>
@@ -38,7 +42,7 @@
     <sys:String x:Key="DialogImageFiles">图片文件</sys:String>
     <sys:String x:Key="DialogPdfFiles">PDF 文件</sys:String>
     <sys:String x:Key="DialogAllFiles">所有文件</sys:String>
-    <sys:String x:Key="DialogSelectWatermarkTitleFormat">选择水印 {0}</sys:String>
+    <sys:String x:Key="DialogSelectWatermarkTitleFormat">选择水印 {0} 的图片 {1}</sys:String>
     <sys:String x:Key="DialogPngImages">PNG 图片</sys:String>
     <sys:String x:Key="DialogSelectOutputTitle">选择水印结果输出目录</sys:String>
     <sys:String x:Key="DialogSelectPdfOutputTitle">选择 PDF 分页图片保存目录</sys:String>
@@ -52,7 +56,7 @@
     <sys:String x:Key="TitleMissingSource">缺少底图</sys:String>
     <sys:String x:Key="MessageMissingSource">请先拖入底图。</sys:String>
     <sys:String x:Key="TitleMissingWatermark">缺少水印</sys:String>
-    <sys:String x:Key="MessageMissingWatermark">请至少放入 1 个 PNG 水印。</sys:String>
+    <sys:String x:Key="MessageMissingWatermark">请在当前水印组中至少放入 1 张 PNG 图片。</sys:String>
     <sys:String x:Key="MessageSelectedWatermarkMissing">这次生成使用的水印已经不存在，请重新生成。</sys:String>
     <sys:String x:Key="TitleNoResult">没有结果</sys:String>
     <sys:String x:Key="MessageNoResult">请先生成水印结果。</sys:String>
@@ -76,12 +80,14 @@
 
     <sys:String x:Key="StatusReady">准备就绪</sys:String>
     <sys:String x:Key="StatusSourceLoadedFormat">已载入底图：{0}</sys:String>
-    <sys:String x:Key="StatusWatermarkLoadedFormat">已载入水印 {0}：{1}</sys:String>
+    <sys:String x:Key="StatusWatermarkLoadedFormat">已载入水印 {0} 的图片 {1}：{2}</sys:String>
     <sys:String x:Key="StatusWatermarkAppliedFormat">已使用水印 {0} · 大小 {1}% · 深浅 {2}% · 左右 {3} · 上下 {4} · 实际强度 {5:P0} · {6} {7:0.#}°</sys:String>
+    <sys:String x:Key="StatusSingleWatermarkAppliedFormat">已随机叠加水印 {0}（图片 {1}）</sys:String>
+    <sys:String x:Key="StatusDualWatermarksAppliedFormat">已叠加双水印：水印 1 使用图片 {0}，水印 2 使用图片 {1}</sys:String>
     <sys:String x:Key="DirectionClockwise">顺时针</sys:String>
     <sys:String x:Key="DirectionCounterclockwise">逆时针</sys:String>
     <sys:String x:Key="StatusSettingsRemembered">已记住水印大小、深浅和位置，下一次生成生效</sys:String>
-    <sys:String x:Key="StatusSavedFormat">已保存到输出目录：{0}，左右/上下已重置为 0</sys:String>
+    <sys:String x:Key="StatusSavedFormat">已保存到输出目录：{0}，两组左右/上下均已重置为 0</sys:String>
     <sys:String x:Key="StatusOutputSelectedFormat">已选择输出目录：{0}</sys:String>
     <sys:String x:Key="StatusPdfCreatedFormat">已生成 PDF：{0}，共 {1} 张图片</sys:String>
     <sys:String x:Key="StatusSourceRestored">已恢复原图</sys:String>
