@@ -10,12 +10,15 @@ namespace ImagePdfToolkit;
 
 public partial class MainWindow : Window
 {
+    private readonly SettingsService _settingsService = new();
+
     private MainViewModel ViewModel => (MainViewModel)DataContext;
 
     public MainWindow()
     {
         InitializeComponent();
         DataContext = new MainViewModel();
+        RestoreWindowPlacement();
     }
 
     private void PreviewDropZone_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -90,6 +93,72 @@ public partial class MainWindow : Window
 
     private void Window_OnClosing(object? sender, CancelEventArgs e)
     {
+        SaveWindowPlacement();
         ViewModel.Dispose();
+    }
+
+    private void RestoreWindowPlacement()
+    {
+        var settings = _settingsService.Load();
+        if (settings?.WindowWidth is not { } width
+            || settings.WindowHeight is not { } height
+            || !double.IsFinite(width)
+            || !double.IsFinite(height)
+            || width < MinWidth
+            || height < MinHeight)
+        {
+            return;
+        }
+
+        Width = width;
+        Height = height;
+        if (settings.WindowLeft is { } left
+            && settings.WindowTop is { } top
+            && IsPlacementVisible(left, top, width, height))
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = left;
+            Top = top;
+        }
+
+        if (settings.IsWindowMaximized)
+        {
+            WindowState = WindowState.Maximized;
+        }
+    }
+
+    private void SaveWindowPlacement()
+    {
+        var bounds = WindowState == WindowState.Normal
+            ? new Rect(Left, Top, ActualWidth, ActualHeight)
+            : RestoreBounds;
+        if (bounds.Width < MinWidth || bounds.Height < MinHeight)
+        {
+            return;
+        }
+
+        _settingsService.SaveWindowPlacement(
+            bounds.Left,
+            bounds.Top,
+            bounds.Width,
+            bounds.Height,
+            WindowState == WindowState.Maximized);
+    }
+
+    private static bool IsPlacementVisible(double left, double top, double width, double height)
+    {
+        if (!double.IsFinite(left) || !double.IsFinite(top))
+        {
+            return false;
+        }
+
+        var placement = new Rect(left, top, width, height);
+        var desktop = new Rect(
+            SystemParameters.VirtualScreenLeft,
+            SystemParameters.VirtualScreenTop,
+            SystemParameters.VirtualScreenWidth,
+            SystemParameters.VirtualScreenHeight);
+        placement.Intersect(desktop);
+        return placement.Width >= 120 && placement.Height >= 80;
     }
 }

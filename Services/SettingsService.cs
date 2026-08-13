@@ -43,6 +43,22 @@ public sealed class SettingsService
         }
     }
 
+    public void SaveWindowPlacement(
+        double left,
+        double top,
+        double width,
+        double height,
+        bool isMaximized)
+    {
+        var settings = Load() ?? new AppSettings();
+        settings.WindowLeft = left;
+        settings.WindowTop = top;
+        settings.WindowWidth = width;
+        settings.WindowHeight = height;
+        settings.IsWindowMaximized = isMaximized;
+        Save(settings);
+    }
+
     private static string GetSettingsPath()
     {
         return Path.Combine(

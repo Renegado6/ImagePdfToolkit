@@ -24,7 +24,11 @@
     <sys:String x:Key="ClearWatermarksButton">Clear Watermarks</sys:String>
     <sys:String x:Key="LanguageLabel">Language</sys:String>
 
-    <sys:String x:Key="WatermarkSlotTitleFormat">Watermark {0}</sys:String>
+    <sys:String x:Key="WatermarkGroupTitleFormat">Watermark {0} Images (up to 3)</sys:String>
+    <sys:String x:Key="WatermarkLayerTitleFormat">Watermark {0}</sys:String>
+    <sys:String x:Key="WatermarkImagesTitle">PNG Images (up to 3)</sys:String>
+    <sys:String x:Key="WatermarkCandidateTitleFormat">Image {0}</sys:String>
+    <sys:String x:Key="WatermarkSettingsTitleFormat">Watermark {0} Settings</sys:String>
     <sys:String x:Key="WatermarkDropHint">Drop PNG or click to choose</sys:String>
     <sys:String x:Key="OffsetHorizontalFormat">Horizontal {0}</sys:String>
     <sys:String x:Key="OffsetVerticalFormat">Vertical {0}</sys:String>
@@ -38,7 +42,7 @@
     <sys:String x:Key="DialogImageFiles">Image files</sys:String>
     <sys:String x:Key="DialogPdfFiles">PDF files</sys:String>
     <sys:String x:Key="DialogAllFiles">All files</sys:String>
-    <sys:String x:Key="DialogSelectWatermarkTitleFormat">Select Watermark {0}</sys:String>
+    <sys:String x:Key="DialogSelectWatermarkTitleFormat">Select Image {1} for Watermark {0}</sys:String>
     <sys:String x:Key="DialogPngImages">PNG images</sys:String>
     <sys:String x:Key="DialogSelectOutputTitle">Select Watermark Output Folder</sys:String>
     <sys:String x:Key="DialogSelectPdfOutputTitle">Select a Folder for Extracted PDF Pages</sys:String>
@@ -52,7 +56,7 @@
     <sys:String x:Key="TitleMissingSource">Source Image Required</sys:String>
     <sys:String x:Key="MessageMissingSource">Drop or select a source image first.</sys:String>
     <sys:String x:Key="TitleMissingWatermark">Watermark Required</sys:String>
-    <sys:String x:Key="MessageMissingWatermark">Add at least one PNG watermark.</sys:String>
+    <sys:String x:Key="MessageMissingWatermark">Add at least one PNG image to this watermark group.</sys:String>
     <sys:String x:Key="MessageSelectedWatermarkMissing">The watermark used for this result is no longer available. Generate a new result.</sys:String>
     <sys:String x:Key="TitleNoResult">No Result</sys:String>
     <sys:String x:Key="MessageNoResult">Generate a watermarked result first.</sys:String>
@@ -76,12 +80,14 @@
 
     <sys:String x:Key="StatusReady">Ready</sys:String>
     <sys:String x:Key="StatusSourceLoadedFormat">Loaded source image: {0}</sys:String>
-    <sys:String x:Key="StatusWatermarkLoadedFormat">Loaded watermark {0}: {1}</sys:String>
+    <sys:String x:Key="StatusWatermarkLoadedFormat">Loaded image {1} for watermark {0}: {2}</sys:String>
     <sys:String x:Key="StatusWatermarkAppliedFormat">Applied watermark {0} · Size {1}% · Intensity {2}% · Horizontal {3} · Vertical {4} · Effective opacity {5:P0} · {6} {7:0.#}°</sys:String>
+    <sys:String x:Key="StatusSingleWatermarkAppliedFormat">Applied watermark {0} using image {1}</sys:String>
+    <sys:String x:Key="StatusDualWatermarksAppliedFormat">Applied both watermarks: watermark 1 uses image {0}, watermark 2 uses image {1}</sys:String>
     <sys:String x:Key="DirectionClockwise">Clockwise</sys:String>
     <sys:String x:Key="DirectionCounterclockwise">Counterclockwise</sys:String>
     <sys:String x:Key="StatusSettingsRemembered">Size, intensity, and position saved; they will apply to the next result</sys:String>
-    <sys:String x:Key="StatusSavedFormat">Saved to the output folder: {0}; horizontal and vertical offsets reset to 0</sys:String>
+    <sys:String x:Key="StatusSavedFormat">Saved to the output folder: {0}; both position offsets reset to 0</sys:String>
     <sys:String x:Key="StatusOutputSelectedFormat">Selected output folder: {0}</sys:String>
     <sys:String x:Key="StatusPdfCreatedFormat">Created PDF: {0} ({1} image(s))</sys:String>
     <sys:String x:Key="StatusSourceRestored">Restored the source image</sys:String>

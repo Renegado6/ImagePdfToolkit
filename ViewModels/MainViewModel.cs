@@ -22,14 +22,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private ImageSource? _previewImage;
     private string? _sourceImagePath;
     private string? _outputDirectory;
-    private WatermarkRenderState? _lastRenderState;
+    private WatermarkRenderState?[]? _lastRenderStates;
     private bool _hasWatermarkedResult;
     private bool _isRestoringSettings;
     private bool _isExtractingPdf;
-    private int _watermarkSizePercent = AppConstants.DefaultWatermarkSizePercent;
-    private int _watermarkColorDepthPercent = AppConstants.DefaultWatermarkColorDepthPercent;
-    private int _offsetXPercent;
-    private int _offsetYPercent;
     private string _statusText = string.Empty;
     private string _statusResourceKey = "StatusReady";
     private object?[] _statusArguments = [];
@@ -54,8 +50,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _statusText = _localization.Get(_statusResourceKey);
         _localization.LanguageChanged += OnLanguageChanged;
 
+        WatermarkGroups = new ObservableCollection<WatermarkGroupModel>(
+            Enumerable.Range(0, AppConstants.WatermarkGroupCount).Select(index => new WatermarkGroupModel(index)));
         WatermarkSlots = new ObservableCollection<WatermarkSlotModel>(
-            Enumerable.Range(0, AppConstants.SlotCount).Select(index => new WatermarkSlotModel(index)));
+            WatermarkGroups.SelectMany(group => group.Slots));
+        WatermarkAdjustments = new ObservableCollection<WatermarkAdjustmentModel>(
+            WatermarkGroups.Select(group => group.Adjustment));
+        foreach (var adjustment in WatermarkAdjustments)
+        {
+            adjustment.SettingsChanged += OnWatermarkSettingsChanged;
+        }
 
         PickSourceCommand = new RelayCommand(PickSourceFile);
         PickWatermarkCommand = new RelayCommand(PickWatermark);
@@ -65,13 +69,15 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         CreatePdfCommand = new RelayCommand(CreatePdf, IsOutputDirectoryValid);
         ResetPreviewCommand = new RelayCommand(ResetPreviewToSource, () => _sourceImage is not null);
         ClearWatermarksCommand = new RelayCommand(ClearWatermarks, () => WatermarkSlots.Any(slot => slot.HasImage));
-        MoveOffsetCommand = new RelayCommand(MoveOffset);
-
         LoadRememberedAssets();
         RefreshDerivedState();
     }
 
     public ObservableCollection<WatermarkSlotModel> WatermarkSlots { get; }
+
+    public ObservableCollection<WatermarkGroupModel> WatermarkGroups { get; }
+
+    public ObservableCollection<WatermarkAdjustmentModel> WatermarkAdjustments { get; }
 
     public IReadOnlyList<LanguageOption> Languages { get; }
 
@@ -90,8 +96,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public RelayCommand ResetPreviewCommand { get; }
 
     public RelayCommand ClearWatermarksCommand { get; }
-
-    public RelayCommand MoveOffsetCommand { get; }
 
     public LanguageOption? SelectedLanguage
     {
@@ -122,40 +126,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     public bool HasPreview => PreviewImage is not null;
-
-    public int WatermarkSizePercent
-    {
-        get => _watermarkSizePercent;
-        set
-        {
-            value = Math.Clamp(value, AppConstants.MinWatermarkSizePercent, AppConstants.MaxWatermarkSizePercent);
-            if (SetProperty(ref _watermarkSizePercent, value))
-            {
-                HandleSettingsChanged();
-            }
-        }
-    }
-
-    public int WatermarkColorDepthPercent
-    {
-        get => _watermarkColorDepthPercent;
-        set
-        {
-            value = Math.Clamp(value, AppConstants.MinWatermarkColorDepthPercent, AppConstants.MaxWatermarkColorDepthPercent);
-            if (SetProperty(ref _watermarkColorDepthPercent, value))
-            {
-                HandleSettingsChanged();
-            }
-        }
-    }
-
-    public int OffsetXPercent => _offsetXPercent;
-
-    public int OffsetYPercent => _offsetYPercent;
-
-    public string OffsetXDisplay => _localization.Format("OffsetHorizontalFormat", FormatSignedPercent(_offsetXPercent));
-
-    public string OffsetYDisplay => _localization.Format("OffsetVerticalFormat", FormatSignedPercent(_offsetYPercent));
 
     public string StatusText
     {
@@ -274,7 +244,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var path = _dialogs.PickWatermark(slot.Index, slot.FilePath);
+        var path = _dialogs.PickWatermark(slot.GroupIndex, slot.OptionIndex, slot.FilePath);
         if (!string.IsNullOrWhiteSpace(path))
         {
             LoadWatermark(slot, path, remember: true, showError: true);
@@ -301,7 +271,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             _sourceImage?.Dispose();
             _sourceImage = loaded;
             _sourceImagePath = path;
-            _lastRenderState = null;
+            _lastRenderStates = null;
             SetPreviewBitmap((Bitmap)loaded.Clone(), hasWatermark: false);
             SetStatus("StatusSourceLoadedFormat", Path.GetFileName(path));
             if (remember)
@@ -343,7 +313,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             var loaded = _imageService.LoadBitmapCopy(path);
             slot.Replace(loaded, _imageService.CreatePreviewSource(loaded), path);
-            SetStatus("StatusWatermarkLoadedFormat", slot.Index + 1, Path.GetFileName(path));
+            SetStatus("StatusWatermarkLoadedFormat", slot.GroupIndex + 1, slot.OptionIndex + 1, Path.GetFileName(path));
             if (remember)
             {
                 SaveSettings();
@@ -365,11 +335,18 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
-    private bool CanApplyWatermark()
-        => _sourceImage is not null && WatermarkSlots.Any(slot => slot.HasImage);
+    private bool CanApplyWatermark(object? parameter)
+        => TryGetWatermarkGroupIndex(parameter, out var groupIndex)
+           && _sourceImage is not null
+           && WatermarkGroups[groupIndex].Slots.Any(slot => slot.HasImage);
 
-    private void ApplyRandomWatermark()
+    private void ApplyRandomWatermark(object? parameter)
     {
+        if (!TryGetWatermarkGroupIndex(parameter, out var groupIndex))
+        {
+            return;
+        }
+
         if (_sourceImage is null)
         {
             _dialogs.ShowInfo(
@@ -378,7 +355,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var availableSlots = WatermarkSlots.Where(slot => slot.Image is not null).ToArray();
+        var availableSlots = WatermarkGroups[groupIndex].Slots
+            .Where(slot => slot.Image is not null)
+            .ToArray();
         if (availableSlots.Length == 0)
         {
             _dialogs.ShowInfo(
@@ -388,27 +367,31 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
 
         var selectedSlot = availableSlots[_random.Next(availableSlots.Length)];
-        var opacity = _random.Next(88, 99) / 100F;
-        var angle = (float)(_random.NextDouble() * 30D) * (_random.Next(2) == 0 ? -1F : 1F);
-        var state = new WatermarkRenderState(
+        _lastRenderStates ??= new WatermarkRenderState?[AppConstants.WatermarkGroupCount];
+        _lastRenderStates[groupIndex] = new WatermarkRenderState(
             selectedSlot.Index,
-            opacity,
-            angle,
+            _random.Next(88, 99) / 100F,
+            (float)(_random.NextDouble() * 30D) * (_random.Next(2) == 0 ? -1F : 1F),
             _random.Next(),
             _random.NextDouble(),
             _random.NextDouble());
-        RenderWatermark(state, showMissingWatermarkError: true);
+        RenderWatermarks(_lastRenderStates, showMissingWatermarkError: true);
     }
 
-    private bool RenderWatermark(WatermarkRenderState state, bool showMissingWatermarkError)
+    private bool RenderWatermarks(IReadOnlyList<WatermarkRenderState?> states, bool showMissingWatermarkError)
     {
-        if (_sourceImage is null)
+        if (_sourceImage is null || states.Count != WatermarkAdjustments.Count)
         {
             return false;
         }
 
-        var slot = WatermarkSlots.FirstOrDefault(item => item.Index == state.SlotIndex);
-        if (slot?.Image is null)
+        var slots = states
+            .Select(state => state is null
+                ? null
+                : WatermarkSlots.FirstOrDefault(item => item.Index == state.SlotIndex))
+            .ToArray();
+        if (states.Select((state, index) => (state, index))
+            .Any(item => item.state is not null && slots[item.index]?.Image is null))
         {
             if (showMissingWatermarkError)
             {
@@ -420,32 +403,69 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             return false;
         }
 
-        var render = _imageService.Render(
-            _sourceImage,
-            slot.Image,
-            state,
-            WatermarkSizePercent,
-            WatermarkColorDepthPercent,
-            _offsetXPercent,
-            _offsetYPercent);
-        _lastRenderState = state;
-        SetPreviewBitmap(render.Image, hasWatermark: true);
-        var direction = _localization.Get(state.Angle >= 0 ? "DirectionClockwise" : "DirectionCounterclockwise");
-        SetStatus(
-            "StatusWatermarkAppliedFormat",
-            slot.Index + 1,
-            WatermarkSizePercent,
-            WatermarkColorDepthPercent,
-            FormatSignedPercent(_offsetXPercent),
-            FormatSignedPercent(_offsetYPercent),
-            render.EffectiveOpacity,
-            direction,
-            Math.Abs(state.Angle));
-        RefreshDerivedState();
-        return true;
+        Bitmap? intermediate = null;
+        try
+        {
+            Bitmap current = _sourceImage;
+            for (var index = 0; index < states.Count; index++)
+            {
+                if (states[index] is not { } state)
+                {
+                    continue;
+                }
+
+                var adjustment = WatermarkAdjustments[index];
+                var render = _imageService.Render(
+                    current,
+                    slots[index]!.Image!,
+                    state,
+                    adjustment.SizePercent,
+                    adjustment.ColorDepthPercent,
+                    adjustment.OffsetXPercent,
+                    adjustment.OffsetYPercent);
+                intermediate?.Dispose();
+                intermediate = render.Image;
+                current = intermediate;
+            }
+
+            if (intermediate is null)
+            {
+                return false;
+            }
+
+            _lastRenderStates = states.ToArray();
+            SetPreviewBitmap(intermediate!, hasWatermark: true);
+            intermediate = null;
+            var appliedGroups = states
+                .Select((state, index) => (state, index))
+                .Where(item => item.state is not null)
+                .Select(item => item.index)
+                .ToArray();
+            if (appliedGroups.Length == AppConstants.WatermarkGroupCount)
+            {
+                SetStatus(
+                    "StatusDualWatermarksAppliedFormat",
+                    slots[0]!.OptionIndex + 1,
+                    slots[1]!.OptionIndex + 1);
+            }
+            else
+            {
+                var appliedGroupIndex = appliedGroups[0];
+                SetStatus(
+                    "StatusSingleWatermarkAppliedFormat",
+                    appliedGroupIndex + 1,
+                    slots[appliedGroupIndex]!.OptionIndex + 1);
+            }
+            RefreshDerivedState();
+            return true;
+        }
+        finally
+        {
+            intermediate?.Dispose();
+        }
     }
 
-    private void HandleSettingsChanged()
+    private void OnWatermarkSettingsChanged(object? sender, EventArgs e)
     {
         if (_isRestoringSettings)
         {
@@ -453,62 +473,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
 
         SaveSettings();
-        if (_lastRenderState is not null
+        if (_lastRenderStates is not null
             && _hasWatermarkedResult
-            && RenderWatermark(_lastRenderState, showMissingWatermarkError: false))
+            && RenderWatermarks(_lastRenderStates, showMissingWatermarkError: false))
         {
             return;
         }
 
         SetStatus("StatusSettingsRemembered");
-    }
-
-    private void MoveOffset(object? parameter)
-    {
-        var x = _offsetXPercent;
-        var y = _offsetYPercent;
-        switch (parameter as string)
-        {
-            case "Left":
-                x -= AppConstants.WatermarkOffsetStepPercent;
-                break;
-            case "Right":
-                x += AppConstants.WatermarkOffsetStepPercent;
-                break;
-            case "Up":
-                y -= AppConstants.WatermarkOffsetStepPercent;
-                break;
-            case "Down":
-                y += AppConstants.WatermarkOffsetStepPercent;
-                break;
-            case "Reset":
-                x = 0;
-                y = 0;
-                break;
-            default:
-                return;
-        }
-
-        SetOffsets(x, y, applyChange: true);
-    }
-
-    private void SetOffsets(int x, int y, bool applyChange)
-    {
-        x = Math.Clamp(x, AppConstants.MinWatermarkOffsetPercent, AppConstants.MaxWatermarkOffsetPercent);
-        y = Math.Clamp(y, AppConstants.MinWatermarkOffsetPercent, AppConstants.MaxWatermarkOffsetPercent);
-        var changed = SetProperty(ref _offsetXPercent, x, nameof(OffsetXPercent));
-        changed |= SetProperty(ref _offsetYPercent, y, nameof(OffsetYPercent));
-        if (!changed)
-        {
-            return;
-        }
-
-        OnPropertyChanged(nameof(OffsetXDisplay));
-        OnPropertyChanged(nameof(OffsetYDisplay));
-        if (applyChange)
-        {
-            HandleSettingsChanged();
-        }
     }
 
     private bool CanSaveResult()
@@ -546,11 +518,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private void ResetOffsetsAfterSave()
     {
-        var hadOffset = _offsetXPercent != 0 || _offsetYPercent != 0;
+        var hadOffset = WatermarkAdjustments.Any(item => item.OffsetXPercent != 0 || item.OffsetYPercent != 0);
         _isRestoringSettings = true;
         try
         {
-            SetOffsets(0, 0, applyChange: false);
+            foreach (var adjustment in WatermarkAdjustments)
+            {
+                adjustment.ResetOffsets();
+            }
         }
         finally
         {
@@ -558,9 +533,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
 
         SaveSettings();
-        if (hadOffset && _lastRenderState is not null && _hasWatermarkedResult)
+        if (hadOffset && _lastRenderStates is not null && _hasWatermarkedResult)
         {
-            RenderWatermark(_lastRenderState, showMissingWatermarkError: false);
+            RenderWatermarks(_lastRenderStates, showMissingWatermarkError: false);
         }
     }
 
@@ -691,7 +666,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
 
         SetPreviewBitmap((Bitmap)_sourceImage.Clone(), hasWatermark: false);
-        _lastRenderState = null;
+        _lastRenderStates = null;
         SetStatus("StatusSourceRestored");
         RefreshDerivedState();
     }
@@ -703,7 +678,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             slot.Clear();
         }
 
-        _lastRenderState = null;
+        _lastRenderStates = null;
         SetStatus("StatusWatermarksCleared");
         SaveSettings();
         RefreshDerivedState();
@@ -728,9 +703,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _isRestoringSettings = true;
         try
         {
-            WatermarkSizePercent = settings.WatermarkSizePercent;
-            WatermarkColorDepthPercent = settings.WatermarkColorDepthPercent;
-            SetOffsets(settings.WatermarkOffsetXPercent, settings.WatermarkOffsetYPercent, applyChange: false);
+            WatermarkAdjustments[0].Restore(
+                settings.WatermarkSizePercent,
+                settings.WatermarkColorDepthPercent,
+                settings.WatermarkOffsetXPercent,
+                settings.WatermarkOffsetYPercent);
+            WatermarkAdjustments[1].Restore(
+                settings.Watermark2SizePercent ?? settings.WatermarkSizePercent,
+                settings.Watermark2ColorDepthPercent ?? settings.WatermarkColorDepthPercent,
+                settings.Watermark2OffsetXPercent ?? settings.WatermarkOffsetXPercent,
+                settings.Watermark2OffsetYPercent ?? settings.WatermarkOffsetYPercent);
             _outputDirectory = !string.IsNullOrWhiteSpace(settings.OutputDirectory)
                 ? settings.OutputDirectory
                 : settings.LastSaveDirectory;
@@ -772,29 +754,32 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        _settingsService.Save(new AppSettings
-        {
-            LanguageCode = _localization.SelectedLanguageCode,
-            SourceImagePath = _sourceImagePath,
-            WatermarkPaths = WatermarkSlots.Select(slot => slot.FilePath).ToArray(),
-            OutputDirectory = _outputDirectory,
-            LastSaveDirectory = _outputDirectory,
-            WatermarkSizePercent = WatermarkSizePercent,
-            WatermarkColorDepthPercent = WatermarkColorDepthPercent,
-            WatermarkOffsetXPercent = _offsetXPercent,
-            WatermarkOffsetYPercent = _offsetYPercent
-        });
+        var firstAdjustment = WatermarkAdjustments[0];
+        var secondAdjustment = WatermarkAdjustments[1];
+        var settings = _settingsService.Load() ?? new AppSettings();
+        settings.LanguageCode = _localization.SelectedLanguageCode;
+        settings.SourceImagePath = _sourceImagePath;
+        settings.WatermarkPaths = WatermarkSlots.Select(slot => slot.FilePath).ToArray();
+        settings.OutputDirectory = _outputDirectory;
+        settings.LastSaveDirectory = _outputDirectory;
+        settings.WatermarkSizePercent = firstAdjustment.SizePercent;
+        settings.WatermarkColorDepthPercent = firstAdjustment.ColorDepthPercent;
+        settings.WatermarkOffsetXPercent = firstAdjustment.OffsetXPercent;
+        settings.WatermarkOffsetYPercent = firstAdjustment.OffsetYPercent;
+        settings.Watermark2SizePercent = secondAdjustment.SizePercent;
+        settings.Watermark2ColorDepthPercent = secondAdjustment.ColorDepthPercent;
+        settings.Watermark2OffsetXPercent = secondAdjustment.OffsetXPercent;
+        settings.Watermark2OffsetYPercent = secondAdjustment.OffsetYPercent;
+        _settingsService.Save(settings);
     }
 
     private void OnLanguageChanged(object? sender, EventArgs e)
     {
-        foreach (var slot in WatermarkSlots)
+        foreach (var group in WatermarkGroups)
         {
-            slot.RefreshLocalizedText();
+            group.RefreshLocalizedText();
         }
 
-        OnPropertyChanged(nameof(OffsetXDisplay));
-        OnPropertyChanged(nameof(OffsetYDisplay));
         OnPropertyChanged(nameof(OutputDirectoryDisplay));
         StatusText = _localization.Format(_statusResourceKey, _statusArguments);
     }
@@ -817,9 +802,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         ClearWatermarksCommand.NotifyCanExecuteChanged();
     }
 
-    private static string FormatSignedPercent(int value)
-        => value > 0 ? $"+{value}%" : $"{value}%";
-
     public void Dispose()
     {
         _localization.LanguageChanged -= OnLanguageChanged;
@@ -829,5 +811,29 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             slot.Dispose();
         }
+
+        foreach (var adjustment in WatermarkAdjustments)
+        {
+            adjustment.SettingsChanged -= OnWatermarkSettingsChanged;
+        }
+    }
+
+    private static bool TryGetWatermarkGroupIndex(object? parameter, out int groupIndex)
+    {
+        if (parameter is int value)
+        {
+            groupIndex = value;
+        }
+        else if (parameter is string text && int.TryParse(text, out var parsed))
+        {
+            groupIndex = parsed;
+        }
+        else
+        {
+            groupIndex = -1;
+            return false;
+        }
+
+        return groupIndex >= 0 && groupIndex < AppConstants.WatermarkGroupCount;
     }
 }

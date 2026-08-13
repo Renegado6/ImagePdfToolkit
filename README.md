@@ -17,7 +17,7 @@ ImagePdfToolkit (Image & PDF Toolkit) is a lightweight local Windows desktop app
 
 Download the latest ready-to-run Windows package from the [Releases page](https://github.com/shadiao719/ImagePdfToolkit/releases/latest).
 
-1. Download `ImagePdfToolkit-v1.2.0-win-x64.zip`.
+1. Download `ImagePdfToolkit-v1.3.0-win-x64.zip`.
 2. Extract the ZIP file to any folder.
 3. Run `ImagePdfToolkit.exe`.
 
@@ -28,11 +28,11 @@ On first launch, the application follows the Windows display language. You can s
 ## Features
 
 - Drag and drop or select a source image: PNG, JPG, BMP, GIF, or TIFF
-- Configure up to 10 PNG watermark candidates
-- Randomize watermark selection, rotation, opacity, and placement
-- Adjust watermark size and color intensity
-- Move the watermark with four directional buttons in 5% steps
-- Reset the watermark position with the center button
+- Use two independent watermark layers, each with up to three PNG candidates
+- Randomize candidate selection, rotation, opacity, and placement independently for each layer
+- Adjust the size and color intensity of each watermark separately
+- Move each watermark with its own four directional buttons in 5% steps
+- Reset either watermark position with its center button
 - Preview and save the processed image
 - Remember the last source image, watermarks, output folder, and settings
 - Merge images from the output folder into a PDF
@@ -69,9 +69,9 @@ You can also open `ImagePdfToolkit.slnx` in Visual Studio and run the project di
 ## Usage
 
 1. Drop a source image into the preview area or choose one from disk.
-2. Add one or more PNG watermarks on the right.
-3. Adjust the size, intensity, and position.
-4. Select **Apply Random Watermark** to preview a result.
+2. Add up to three PNG candidates to each of the two watermark groups.
+3. Adjust the size, intensity, and position of each watermark layer independently.
+4. Select **Apply Random Watermark** at the bottom of either settings card. Both results are composited and can be randomized separately.
 5. Choose an output folder different from the source folder, then save the result.
 6. To merge output images, select **Create PDF from Folder Images**.
 

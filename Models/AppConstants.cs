@@ -2,7 +2,9 @@ namespace ImagePdfToolkit.Models;
 
 public static class AppConstants
 {
-    public const int SlotCount = 3;
+    public const int WatermarkGroupCount = 2;
+    public const int SlotsPerWatermark = 3;
+    public const int SlotCount = WatermarkGroupCount * SlotsPerWatermark;
     public const int DefaultWatermarkSizePercent = 100;
     public const int MinWatermarkSizePercent = 10;
     public const int MaxWatermarkSizePercent = 300;
